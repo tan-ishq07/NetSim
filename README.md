@@ -1,20 +1,25 @@
+
 <div align="center">
 
 # NetSim — Browser-Based Network Simulator with a Cisco-Style CLI & On-Device AI Tutor
 
 **Practice CCNA-level networking in your browser. No installs, no VMs, no license.**
+
 Build a topology, configure routers and switches with real Cisco IOS-style commands, capture packets to Wireshark `.pcap`, and ask a built-in AI tutor *why* your lab isn't working.
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-netsim--lab-2ea44f?style=for-the-badge&logo=googlechrome&logoColor=white)](https://netsim-lab.osc-fr1.scalingo.io)
+[![NetSim Live Demo](https://img.shields.io/badge/NetSim-Live_Demo-2ea44f?style=for-the-badge&logo=googlechrome&logoColor=white)](https://netsim-lab.osc-fr1.scalingo.io)
+
+[![TCP Visualizer Demo](https://img.shields.io/badge/TCP_Visualizer-Live_Demo-2563eb?style=for-the-badge&logo=googlechrome&logoColor=white)](https://tcp.overshoot.ai/)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-![CI](https://github.com/joxorsayan/netsim/actions/workflows/ci.yml/badge.svg)
-![NetDevOps](https://github.com/joxorsayan/netsim/actions/workflows/netdevops.yml/badge.svg)
+![CI](https://github.com/tan-ishq07/NetSim/actions/workflows/ci.yml/badge.svg)
+![NetDevOps](https://github.com/tan-ishq07/NetSim/actions/workflows/netdevops.yml/badge.svg)
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-[**🚀 Try the live demo**](https://netsim-lab.osc-fr1.scalingo.io) · [Features](#-features) · [Quickstart](#-quickstart) · [Automation](#-network-automation-netdevops) · [Architecture](#-architecture) · [AI tutor pipeline](#-ai-tutor--on-device-ml-pipeline) · [Why NetSim?](#-why-netsim)
+[**🚀 Try NetSim Live**](https://netsim-lab.osc-fr1.scalingo.io) · [**TCP Visualizer**](https://tcp.overshoot.ai/) · [Features](#-features) · [Quickstart](#-quickstart) · [Automation](#-network-automation-netdevops) · [Architecture](#-architecture)
 
 ![NetSim topology editor and Cisco-style CLI](docs/img/hero-cli.png)
 
@@ -24,7 +29,9 @@ Build a topology, configure routers and switches with real Cisco IOS-style comma
 
 ## 📖 Overview
 
-**NetSim** is an open-source, browser-based **network simulator** (a lightweight, web-native alternative to Cisco Packet Tracer / GNS3) for learning and teaching networking. The protocol behaviour — switching, routing, ARP, ICMP, DHCP, spanning tree — is modelled in pure Python, so the whole simulator runs as an ordinary web app with **zero installation**: open a URL and start configuring a router.
+**NetSim** is an open-source, browser-based **network simulator** (a lightweight, web-native alternative to Cisco Packet Tracer / GNS3) for learning and teaching networking.
+
+The protocol behaviour — switching, routing, ARP, ICMP, DHCP, spanning tree — is modelled in pure Python, so the whole simulator runs as an ordinary web app with **zero installation**: open a URL and start configuring a router.
 
 It covers a **CCNA-level** feature set (VLANs & 802.1Q trunking, STP, OSPF/EIGRP/RIP/BGP routing, DHCP, NAT/PAT, ACLs, IPv6 dual-stack, FHRP, EtherChannel) and ships with three things most free simulators lack: a **packet capture exporter** (`.pcap` for Wireshark), an **on-device AI tutor** that explains misconfigurations, and **labs-as-code with auto-grading**.
 
@@ -43,7 +50,7 @@ It's also a from-scratch demonstration that core networking — packet forwardin
 
 ## ✨ Features
 
-| | |
+| Feature | Description |
 |---|---|
 | 🖧 **Topology editor** | Drag-and-drop PCs, switches and routers; cable them; arrange visually. Live link-state colouring. |
 | ⌨️ **Cisco IOS-style CLI** | Per-device console with prefix abbreviation (`conf t`, `int g0/0`), `?` context help, Tab-completion and command history. |
@@ -70,15 +77,34 @@ It's also a from-scratch demonstration that core networking — packet forwardin
 
 ## 🚀 Quickstart
 
+Clone the repository:
+
 ```bash
-git clone https://github.com/joxorsayan/netsim.git
-cd netsim
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-# open http://localhost:8000  → click "Load sample topology"
+git clone https://github.com/tan-ishq07/NetSim.git
+cd NetSim
 ```
 
-Run the test suite:
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the server:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Open your browser:
+
+```text
+http://localhost:8000
+```
+
+Click **Load sample topology** to get started.
+
+### Run the test suite
 
 ```bash
 pip install pytest
@@ -87,7 +113,7 @@ python -m pytest
 
 ## 🧱 Architecture
 
-```
+```text
 app/
   engine/        pure-Python simulation engine (no web deps)
     packet.py    frames / ARP / IP / ICMP / DHCP units + capture entries
@@ -104,7 +130,7 @@ app/
   static/        vanilla-JS topology editor, CLI console, capture/tutor/lab/automation tabs
 automation/      Python automation toolkit: SDK + CLI + Jinja2 templates + network defs
   client.py      NetSimClient — typed REST SDK
-  cli.py         `python -m automation.cli` (render/deploy/validate/drift/intent)
+  cli.py         python -m automation.cli (render/deploy/validate/drift/intent)
   netdevops.py   render → push → validate pipeline
   labs/          declarative network definitions (topology + vars + assertions)
 examples/        runnable automation examples (provision_and_verify.py)
@@ -147,7 +173,9 @@ uvicorn app.main:app --port 8000 &
 python -m automation.cli deploy automation/labs/two_router_ospf.yaml --url http://localhost:8000
 ```
 
-```
+Example output:
+
+```text
 === NetDevOps deploy: two-router-ospf ===
 [OK] topology: 4 devices, 3 links
 [OK] push R1: 13 lines   [OK] push R2: 13 lines   [OK] push PC1/PC2
@@ -168,7 +196,7 @@ print(nc.validate([{"type": "reachable", "src": "PC1", "dst": "192.168.2.10"}]))
 
 ## ☁️ Deploy (Scalingo / any buildpack host)
 
-The repo is buildpack-ready (`requirements.txt`, `.python-version`, `Procfile`):
+The repository is buildpack-ready (`requirements.txt`, `.python-version`, `Procfile`):
 
 ```bash
 scalingo create netsim
@@ -196,7 +224,22 @@ Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Open an is
 
 Released under the [MIT License](LICENSE).
 
+---
 
-Built to show that production networking concepts (OSPF/BGP/STP/VLAN/DHCP, packet forwarding, Cisco CLI) can be modelled from first principles and shipped as an accessible, zero-install learning tool — combining networking depth with full-stack and applied-ML engineering.
-</content>
-</invoke>
+## 👨‍💻 Project Credits
+
+NetSim is based on the open-source project originally developed by **Sayan Roy Chowdhury**.
+
+This repository is an independently maintained copy. Original code, project concepts and contributions remain credited to their respective authors under the MIT License.
+
+**Repository maintained by Tanishq Mogha.**
+
+---
+
+<div align="center">
+
+**Built to explore and demonstrate production networking concepts — OSPF, BGP, STP, VLAN, DHCP, packet forwarding and Cisco-style CLI — alongside network automation and applied machine learning.**
+
+[NetSim Live Demo](https://netsim-lab.osc-fr1.scalingo.io) · [TCP Visualizer Demo](https://tcp.overshoot.ai/) · [GitHub Repository](https://github.com/tan-ishq07/NetSim)
+
+</div>
