@@ -1,0 +1,65 @@
+# NetDevOps network definition — a two-router OSPF backbone with a host on each
+# side. This single file is the source of truth: topology, per-device variables,
+# and the validation assertions that must hold once it's deployed.
+#
+#   PC1 --- R1 ===(OSPF area 0)=== R2 --- PC2
+#   192.168.1.0/24   10.0.0.0/30      192.168.2.0/24
+name: two-router-ospf
+
+topology:
+  devices:
+    - {kind: host,   name: PC1, ports: 1, x: 80,  y: 120}
+    - {kind: router, name: R1,  ports: 2, x: 300, y: 220}
+    - {kind: router, name: R2,  ports: 2, x: 560, y: 220}
+    - {kind: host,   name: PC2, ports: 1, x: 780, y: 120}
+  links:
+    - {dev_a: PC1, if_a: eth0,                dev_b: R1,  if_b: GigabitEthernet0/1}
+    - {dev_a: R1,  if_a: GigabitEthernet0/0,  dev_b: R2,  if_b: GigabitEthernet0/0}
+    - {dev_a: R2,  if_a: GigabitEthernet0/1,  dev_b: PC2, if_b: eth0}
+
+templates:
+  R1: router.j2
+  R2: router.j2
+  PC1: host.j2
+  PC2: host.j2
+
+vars:
+  R1:
+    hostname: R1
+    interfaces:
+      - {name: GigabitEthernet0/1, ip: 192.168.1.1, mask: 255.255.255.0}
+      - {name: GigabitEthernet0/0, ip: 10.0.0.1,    mask: 255.255.255.252}
+    ospf:
+      pid: 1
+      networks:
+        - {net: 192.168.1.0, wildcard: 0.0.0.255, area: 0}
+        - {net: 10.0.0.0,    wildcard: 0.0.0.3,   area: 0}
+  R2:
+    hostname: R2
+    interfaces:
+      - {name: GigabitEthernet0/1, ip: 192.168.2.1, mask: 255.255.255.0}
+      - {name: GigabitEthernet0/0, ip: 10.0.0.2,    mask: 255.255.255.252}
+    ospf:
+      pid: 1
+      networks:
+        - {net: 192.168.2.0, wildcard: 0.0.0.255, area: 0}
+        - {net: 10.0.0.0,    wildcard: 0.0.0.3,   area: 0}
+  PC1:
+    ip: 192.168.1.10
+    mask: 255.255.255.0
+    gateway: 192.168.1.1
+  PC2:
+    ip: 192.168.2.10
+    mask: 255.255.255.0
+    gateway: 192.168.2.1
+
+# Intended-state assertions (Batfish/pyATS style). The deploy fails if any fail.
+validate:
+  - {type: no_duplicate_ip}
+  - {type: interface_up, device: R1, interface: GigabitEthernet0/0}
+  - {type: interface_up, device: R2, interface: GigabitEthernet0/0}
+  - {type: interface_ip, device: R1, interface: GigabitEthernet0/1, ip: 192.168.1.1}
+  - {type: route_present, device: R1, network: 192.168.2.0/24}
+  - {type: route_present, device: R2, network: 192.168.1.0/24}
+  - {type: reachable, src: PC1, dst: 192.168.2.10}
+  - {type: reachable, src: PC2, dst: 192.168.1.10}

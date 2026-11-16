@@ -1,0 +1,7 @@
+# Tooling-only dependencies for the NetSim automation toolkit (SDK + CLI +
+# examples + NetDevOps CI). The app itself stays dependency-light (see the
+# top-level requirements.txt); these are only needed to *drive* it.
+Jinja2==3.1.4
+PyYAML==6.0.2
+typer==0.12.5
+click==8.1.7

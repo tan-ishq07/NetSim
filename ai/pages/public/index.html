@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>NetSim Tutor model CDN</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    body { font: 14px/1.5 ui-monospace, monospace; background: #0c0f16; color: #c9d4e3;
+           max-width: 640px; margin: 60px auto; padding: 0 20px; }
+    a { color: #6fb4ff; }
+    code { background: #161b26; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>NetSim Tutor model CDN</h1>
+  <p>This Cloudflare Pages project serves the NetSim tutor model artifacts from a
+     public Backblaze B2 bucket through Cloudflare's edge (free egress, cached,
+     CORS-enabled for in-browser inference).</p>
+  <p>Model files are under <code>/m/&lt;version&gt;/&lt;file&gt;</code>, e.g.
+     <code>/m/latest/manifest.json</code>.</p>
+  <p>Not a user-facing site &mdash; see <a href="https://netsim-lab.osc-fr1.scalingo.io">NetSim</a>.</p>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NetSim — network lab console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/>
+          <path d="M5 8v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M12 14v2"/>
+        </svg>
+      </span>
+      <b>NetSim</b>
+      <span class="tag">network lab console</span>
+    </div>
+    <div class="toolbar">
+      <div class="cluster">
+        <button data-add="host" title="Add a host / PC">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>
+          PC
+        </button>
+        <button data-add="switch" title="Add a switch">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6 8V5l3 2M18 8V5l-3 2M6 16v3l3-2M18 16v3l-3-2"/></svg>
+          Switch
+        </button>
+        <button data-add="router" title="Add a router">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8V5l-2 1.5M12 8l2-1.5M12 16v3l2-1.5M12 16l-2 1.5M8 12H5l1.5-2M8 12l-1.5 2M16 12h3l-1.5-2M16 12l1.5 2"/></svg>
+          Router
+        </button>
+      </div>
+      <span class="sep"></span>
+      <div class="cluster">
+        <button id="linkBtn" title="Cable two devices together">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M8.5 10.5l-2 2a3 3 0 0 0 4 4l2-2M15.5 13.5l2-2a3 3 0 0 0-4-4l-2 2"/></svg>
+          Link
+        </button>
+        <button id="deleteBtn" title="Delete a device">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>
+          Delete
+        </button>
+      </div>
+      <span class="sep"></span>
+      <div class="cluster">
+        <button id="sampleBtn" title="Load the sample topology">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7.5 7.5 11 16M16.5 7.5 13 16M8 6h8"/></svg>
+          Sample
+        </button>
+        <button id="resetBtn" class="danger" title="Clear the canvas">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v3.5H7.5"/></svg>
+          Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="canvasWrap">
+      <svg id="links"></svg>
+      <div id="nodes"></div>
+
+      <div id="empty" class="hidden">
+        <div class="card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7.6 7.6 11 16M16.4 7.6 13 16M8.2 6h7.6"/></svg>
+          <h2>Empty canvas</h2>
+          <p>Drop a device from the toolbar to start a topology, or load a ready-made CCNA→CCIE lab.</p>
+          <div class="row">
+            <button id="emptySampleBtn">Load sample topology</button>
+            <button id="emptyLabBtn" class="primary">Browse template labs</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="legend">
+        <span class="k"><span class="sw"></span> link up</span>
+        <span class="k"><span class="sw down"></span> down</span>
+        <span class="k"><span class="sw idle"></span> not cabled</span>
+      </div>
+
+      <div id="hint">Click <b>Link</b>, then two devices to cable them. Click a device to open its console.</div>
+    </section>
+
+    <aside id="panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="cli">Console</button>
+        <button class="tab" data-tab="ping">Ping</button>
+        <button class="tab" data-tab="capture">Capture</button>
+        <button class="tab" data-tab="tutor">Tutor</button>
+        <button class="tab" data-tab="lab">Labs</button>
+        <button class="tab" data-tab="auto">Automation</button>
+      </div>
+
+      <div class="tab-body" id="tab-cli">
+        <div class="console">
+          <div class="muted" id="cliTarget"><span class="dot"></span>No device selected</div>
+          <pre id="cliOut"></pre>
+          <div class="cli-input">
+            <span id="cliPrompt"></span>
+            <input id="cliCmd" placeholder="type a command — ? for help, Tab completes, ↑/↓ history" autocomplete="off" disabled />
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-body hidden" id="tab-ping">
+        <div class="sec">Reachability test</div>
+        <label>Source host <select id="pingSrc"></select></label>
+        <label>Destination IP <input id="pingDst" placeholder="e.g. 192.168.1.20" /></label>
+        <button id="pingRun" class="primary">Send 4 echoes</button>
+        <pre id="pingOut"></pre>
+      </div>
+
+      <div class="tab-body hidden" id="tab-capture">
+        <div class="sec">Packet analyzer</div>
+        <div class="muted">A Wireshark-style three-pane analyzer docks below the canvas:
+          packet list, protocol-detail tree, and hex+ASCII bytes. Run a ping (or
+          traceroute) and frames stream in live. Select a row to inspect a frame and
+          light its path on the topology.</div>
+        <div class="row">
+          <button id="openAnalyzerBtn" class="primary">Open analyzer</button>
+          <button id="clearCapBtn">Clear capture</button>
+        </div>
+        <div class="muted" id="capSummary"><span class="dot"></span>No frames captured yet.</div>
+        <div class="muted ver">Model capture — timing &amp; bytes are synthesized from the
+          simulated event sequence, not sniffed off a NIC.</div>
+      </div>
+
+      <div class="tab-body hidden" id="tab-tutor">
+        <div class="sec">Lab tutor</div>
+        <div class="muted">Ask anything networking — from "what is a VLAN?" to "why can't PC1
+          ping PC2?". For lab questions the tutor grounds its answer in a live scan of your
+          topology (interfaces down, subnet/area mismatches, missing gateways, …).</div>
+        <div class="ai-row">
+          <label class="ai-toggle"><input type="checkbox" id="tutorUseAI" /> On-device AI
+            (runs in your browser)</label>
+          <button id="tutorLoadBtn" class="ghost">Load model</button>
+          <span id="tutorAIStatus" class="muted">not loaded</span>
+        </div>
+        <textarea id="tutorQ" rows="2" placeholder="e.g. why can't PC1 ping PC2? — or — explain OSPF DR/BDR election"></textarea>
+        <button id="tutorBtn" class="primary">Ask</button>
+        <pre id="tutorOut"></pre>
+      </div>
+
+      <div class="tab-body hidden" id="tab-lab">
+        <div class="sec">Template labs</div>
+        <div class="muted">Pick a ready-made CCNA→CCIE lab, load it in one click, then
+          grade against its objectives.</div>
+        <div class="row">
+          <select id="templateSelect"></select>
+          <button id="templateLoadBtn" class="primary">Load</button>
+        </div>
+        <div id="templateObjective" class="muted"></div>
+        <hr />
+        <div class="sec">Saved topologies</div>
+        <div class="muted">Save the current canvas to this browser, then load, rename, download,
+          or import one later. Saves persist across restarts (stored locally).</div>
+        <div class="row">
+          <input id="topoName" type="text" placeholder="Topology name" autocomplete="off" />
+          <button id="topoSaveBtn" class="primary">Save</button>
+        </div>
+        <div class="row">
+          <button id="topoImportBtn">Import .json</button>
+          <input id="topoImportFile" type="file" accept="application/json,.json" hidden />
+        </div>
+        <ul id="topoList" class="topo-list"></ul>
+        <div id="topoMsg" class="muted"></div>
+        <hr />
+        <div class="sec">Lab-as-code</div>
+        <div class="muted">Export the current topology, apply a lab spec, or grade against a checks list.</div>
+        <div class="row">
+          <button id="labExportBtn">Export JSON</button>
+          <button id="labApplyBtn">Apply spec</button>
+          <button id="labGradeBtn" class="primary">Grade</button>
+        </div>
+        <label class="sec">Lab spec / checks JSON</label>
+        <textarea id="labJson" rows="9" placeholder='Paste a lab spec to Apply, or a {"checks":[...]} array to Grade.'></textarea>
+        <pre id="labOut"></pre>
+      </div>
+
+      <div class="tab-body hidden" id="tab-auto">
+        <div class="sec">NetDevOps automation</div>
+        <div class="muted">Drive the network like an automation engineer: render Cisco
+          configs from a Jinja-style template + variables, push them, then assert the
+          intended state (interfaces up, routes present, hosts reachable) — the same
+          REST API the <code>netsim</code> Python SDK and the CI pipeline use.</div>
+        <div class="row">
+          <button id="autoDemoBtn" class="primary" title="Load a two-router OSPF topology to automate">Load OSPF demo</button>
+          <span id="autoDevs" class="muted">no devices</span>
+        </div>
+
+        <hr />
+        <div class="sec">1 · Config as code (templating)</div>
+        <label class="sec">Jinja-style template</label>
+        <textarea id="autoTpl" rows="7" spellcheck="false"></textarea>
+        <label class="sec">Variables (JSON)</label>
+        <textarea id="autoVars" rows="6" spellcheck="false"></textarea>
+        <div class="row">
+          <label>Target <select id="autoDevice"></select></label>
+          <button id="autoRenderBtn">Render</button>
+          <button id="autoPushBtn" class="primary">Render &amp; push</button>
+          <button id="autoPyBtn" class="ghost" title="Copy an equivalent Python SDK script">Copy as Python</button>
+        </div>
+        <pre id="autoRenderOut"></pre>
+
+        <hr />
+        <div class="sec">2 · Validate intended state</div>
+        <div class="muted">Batfish/pyATS-style assertions. Deploy fails if any fail.</div>
+        <textarea id="autoAssert" rows="6" spellcheck="false"></textarea>
+        <div class="row">
+          <button id="autoValidateBtn" class="primary">Validate</button>
+        </div>
+        <pre id="autoValidateOut"></pre>
+
+        <hr />
+        <div class="sec">3 · Config drift</div>
+        <div class="muted">Snapshot a running-config baseline, change something, then diff.</div>
+        <div class="row">
+          <button id="autoSnapBtn">Save baseline</button>
+          <button id="autoDriftBtn" class="primary">Check drift</button>
+        </div>
+        <pre id="autoDriftOut"></pre>
+      </div>
+    </aside>
+  </main>
+
+  <section id="analyzer" class="hidden" aria-label="Packet analyzer">
+    <div class="an-titlebar">
+      <span class="an-title"><span class="an-led"></span>Packet Analyzer
+        <span class="an-sub">model capture</span></span>
+      <span class="an-count" id="anCount">0 frames</span>
+      <span class="spacer"></span>
+      <button class="an-x" id="anClose" title="Close analyzer">✕</button>
+    </div>
+
+    <div class="an-toolbar">
+      <div class="cluster an-filter">
+        <input id="capFilter" placeholder="display filter — e.g. icmp, arp, dhcp, ip.addr == 10.0.0.1, vlan == 10" autocomplete="off" />
+        <button id="capFilterApply">Apply</button>
+        <button id="capFilterClear">Clear</button>
+      </div>
+      <span class="sep"></span>
+      <div class="cluster an-transport">
+        <button id="trFirst" title="First frame">⏮</button>
+        <button id="trBack" title="Step back">◀</button>
+        <button id="trPlay" class="primary" title="Play / pause">▶ Play</button>
+        <button id="trFwd" title="Step forward">▶</button>
+        <button id="trLast" title="Last frame">⏭</button>
+        <select id="trSpeed" title="Playback speed">
+          <option value="2">0.5×</option>
+          <option value="1" selected>1×</option>
+          <option value="0.5">2×</option>
+          <option value="0.25">4×</option>
+        </select>
+      </div>
+      <span class="sep"></span>
+      <div class="cluster">
+        <button id="viewListBtn" class="active">List</button>
+        <button id="viewFlowBtn">Flow graph</button>
+      </div>
+      <span class="spacer"></span>
+      <div class="cluster">
+        <button id="replayBtn">Replay on canvas</button>
+        <button id="pcapBtn">Download .pcap</button>
+      </div>
+    </div>
+
+    <div class="an-body" id="capListView">
+      <div class="an-listpane">
+        <table id="capTable" class="cap-table">
+          <thead>
+            <tr>
+              <th class="c-no">No.</th>
+              <th class="c-time">Time</th>
+              <th class="c-src">Source</th>
+              <th class="c-dst">Destination</th>
+              <th class="c-proto">Protocol</th>
+              <th class="c-len">Length</th>
+              <th class="c-info">Info</th>
+            </tr>
+          </thead>
+          <tbody id="capRows"></tbody>
+        </table>
+        <div class="an-empty" id="capEmpty">No packets. Run a ping or traceroute to capture frames.</div>
+      </div>
+      <div class="an-inspect">
+        <div class="an-pane an-detail">
+          <div class="an-pane-h">Packet details</div>
+          <div id="capDetail" class="cap-detail"></div>
+        </div>
+        <div class="an-pane an-hex">
+          <div class="an-pane-h">Bytes (hex + ASCII)</div>
+          <pre id="capHex" class="cap-hex"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="an-body hidden" id="capFlowView">
+      <div class="an-flow-wrap">
+        <svg id="capFlow" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </div>
+  </section>
+
+  <footer id="statusbar">
+    <span class="s"><span class="led"></span> engine ready</span>
+    <span class="s" id="statDevices">0 devices</span>
+    <span class="s" id="statLinks">0 links</span>
+    <span class="spacer"></span>
+    <span class="s ver">software model · v2</span>
+  </footer>
+
+  <script src="/static/tutor_ai.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

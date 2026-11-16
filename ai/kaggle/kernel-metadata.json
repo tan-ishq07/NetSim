@@ -1,0 +1,15 @@
+{
+  "id": "rohansinggovpoly/netsim-tutor-train",
+  "title": "NetSim Tutor Train",
+  "code_file": "train_tutor.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "machine_shape": "NvidiaTeslaT4",
+  "enable_internet": true,
+  "dataset_sources": ["rohansinggovpoly/netsim-tutor-seed"],
+  "competition_sources": [],
+  "kernel_sources": []
+}

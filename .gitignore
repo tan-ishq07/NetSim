@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.pytest_cache/
+
+# Generated tutor-AI training data + model artifacts (regenerated, not committed)
+ai/data/
+ai/artifacts/
+*.gguf
+*.onnx
+
+# wrangler (Cloudflare Pages CLI) local cache
+.wrangler/
+node_modules/

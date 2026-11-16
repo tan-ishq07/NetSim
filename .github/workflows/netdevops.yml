@@ -1,0 +1,39 @@
+name: NetDevOps
+
+# Treats the network like code: boot NetSim, render configs from templates,
+# push them, and fail the build unless the intended state (interfaces up,
+# routes present, hosts reachable) validates. This is the CI gate a network
+# automation pipeline would run against a staging device pool.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  provision-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r automation/requirements.txt
+      - name: Start NetSim
+        run: |
+          uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8000/api/topology >/dev/null && break
+            sleep 1
+          done
+      - name: Deploy network from code and verify intended state
+        run: |
+          python -m automation.cli deploy automation/labs/two_router_ospf.yaml \
+            --url http://127.0.0.1:8000
+      - name: Run the end-to-end automation example (with drift detection)
+        run: python examples/automation/provision_and_verify.py --url http://127.0.0.1:8000

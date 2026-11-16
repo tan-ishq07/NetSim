@@ -1,0 +1,17 @@
+hostname {{ hostname }}
+{% for i in interfaces %}
+interface {{ i.name }}
+ ip address {{ i.ip }} {{ i.mask }}
+ no shutdown
+ exit
+{% endfor %}
+{% if ospf is defined %}
+router ospf {{ ospf.pid }}
+{% for n in ospf.networks %}
+ network {{ n.net }} {{ n.wildcard }} area {{ n.area }}
+{% endfor %}
+ exit
+{% endif %}
+{% for route in static_routes | default([]) %}
+ip route {{ route.net }} {{ route.mask }} {{ route.next_hop }}
+{% endfor %}
