@@ -196,10 +196,6 @@ Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Open an is
 
 Released under the [MIT License](LICENSE).
 
-## 👤 Author
-
-**Sayan Roy Chowdhury** — Infrastructure & Network Engineer (CCNA, Aruba ACMA, Azure Fundamentals).
-[LinkedIn](https://www.linkedin.com/in/sayan-roy-chowdhury-523b97319) · [GitHub](https://github.com/joxorsayan)
 
 Built to show that production networking concepts (OSPF/BGP/STP/VLAN/DHCP, packet forwarding, Cisco CLI) can be modelled from first principles and shipped as an accessible, zero-install learning tool — combining networking depth with full-stack and applied-ML engineering.
 </content>
